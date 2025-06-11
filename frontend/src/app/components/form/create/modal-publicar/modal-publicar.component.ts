@@ -52,7 +52,7 @@ export class ModalPublicarComponent implements OnInit {
     this.encuestasService.getTokenParticipacion(tokenDashboard, this.encuestaId).pipe(
       switchMap((responseParticipacion: TokenParticipacionResponse) => {
         if (responseParticipacion && responseParticipacion.data && responseParticipacion.data.token_respuesta) {
-          this.surveyLink = `http://localhost/response/${responseParticipacion.data.token_respuesta}`;
+          this.surveyLink = `https://encuestas-anonimas-frontend.onrender.com/response/${responseParticipacion.data.token_respuesta}`;
         } else {
           // Si no hay token_respuesta, lanzamos un error para que lo capture el bloque 'error'
           throw new Error('No se pudo obtener el token de participación.');
