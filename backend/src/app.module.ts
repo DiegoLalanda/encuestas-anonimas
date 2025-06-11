@@ -36,6 +36,12 @@ import { RespuestasOpcionesModule } from './respuestas-opciones/respuestas-opcio
         autoLoadEntities: true,
         logging: cfg.get<boolean>('DATABASE.LOGGING'),
         logger: cfg.get<string>('DATABASE.LOGGER') as any,
+        ssl: true,
+        extra: {
+          ssl: {
+            rejectUnauthorized: false
+          }
+        }
       }),
     }),
 
