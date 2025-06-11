@@ -55,25 +55,27 @@ export class ResultsComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    // El AuthGuard ya verificó que el token existe, solo lo obtenemos.
     this.tokenDashboard = this.getCookie('td');
 
     this.route.paramMap.pipe(
       switchMap(params => {
         const idStr = params.get('id');
         if (!idStr) {
-          this.handleErrorAndNavigate("No se proporcionó un ID de encuesta en la ruta.");
+          // Un ID inválido sigue siendo un error, pero lo manejamos sin redirección manual.
+          // El guard ya no nos dejaría llegar aquí sin token.
+          this.handleError("No se proporcionó un ID de encuesta en la ruta.");
+          this.router.navigate(['/dashboard']); // Opcional: redirigir si el ID es el problema.
           return of(null);
         }
         this.encuestaId = +idStr;
         if (isNaN(this.encuestaId)) {
-          this.handleErrorAndNavigate("El ID de encuesta proporcionado no es válido.");
+          this.handleError("El ID de encuesta proporcionado no es válido.");
+          this.router.navigate(['/dashboard']);
           return of(null);
         }
 
-        if (!this.tokenDashboard) {
-          this.handleErrorAndNavigate("No se encontró el token de autenticación del dashboard (cookie 'td').");
-          return of(null);
-        }
+        // El tokenDashboard ya está garantizado por el AuthGuard, así que podemos llamar directamente.
         return this.loadIndividualResults();
       })
     ).subscribe();

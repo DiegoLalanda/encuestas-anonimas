@@ -82,6 +82,13 @@ export class DashboardComponent implements OnInit {
     private datePipe: DatePipe
   ) { }
 
+  private getCookie(name: string): string | null {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
+    return null;
+  }
+
   ngOnInit(): void {
     const initialFilter = this.filters.find(f => f.checked);
     if (initialFilter) {
@@ -89,25 +96,33 @@ export class DashboardComponent implements OnInit {
       this.activeOrder = initialFilter.order;
     }
 
+    // El AuthGuard ya ha verificado el acceso. Ahora solo obtenemos el token.
     this.route.queryParamMap.subscribe((params) => {
-      const token = params.get('token');
-      const pageFromUrl = params.get('page');
+      // 1. Intenta obtener el token de la URL (si es la primera vez que se accede)
+      let token = params.get('token');
 
+      // 2. Si hay un token en la URL, guárdalo en la cookie.
       if (token) {
-        this.currentDashboardToken = token;
         document.cookie = `td=${token}; path=/; SameSite=Strict; Secure`;
-        const targetPage = pageFromUrl ? parseInt(pageFromUrl, 10) : 1;
-        this.currentPage = (isNaN(targetPage) || targetPage < 1) ? 1 : targetPage;
-
-        const urlNeedsUpdate = !pageFromUrl || parseInt(pageFromUrl, 10) !== this.currentPage;
-        if (urlNeedsUpdate) {
-          this.updateUrlWithPage(false);
-        }
-        this.loadForms();
       } else {
-        console.error("Dashboard: Token no encontrado en la URL.");
-        this.router.navigate(['/']);
+        // 3. Si no hay token en la URL, búscalo en la cookie.
+        token = this.getCookie('td');
       }
+
+      // A este punto, 'token' debe tener un valor gracias al AuthGuard.
+      this.currentDashboardToken = token;
+
+      // Lógica de paginación
+      const pageFromUrl = params.get('page');
+      const targetPage = pageFromUrl ? parseInt(pageFromUrl, 10) : 1;
+      this.currentPage = (isNaN(targetPage) || targetPage < 1) ? 1 : targetPage;
+      const urlNeedsUpdate = !pageFromUrl || parseInt(pageFromUrl, 10) !== this.currentPage;
+      if (urlNeedsUpdate) {
+        this.updateUrlWithPage(false);
+      }
+
+      // Carga los formularios.
+      this.loadForms();
     });
   }
 
@@ -133,7 +148,7 @@ export class DashboardComponent implements OnInit {
       backendSortBy,
       backendOrder
     ).pipe(
-       tap(response => {
+      tap(response => {
         console.log('Respuesta cruda de getEncuestasPorToken:', response);
       }),
       map(response => {
@@ -248,7 +263,7 @@ export class DashboardComponent implements OnInit {
     this.activeOrder = selectedFilter.order;
     this.currentPage = 1;
 
-    this.updateUrlWithPage(false); 
+    this.updateUrlWithPage(false);
     this.loadForms();
   }
 
