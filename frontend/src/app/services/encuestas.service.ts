@@ -10,8 +10,10 @@ import { environment } from '../../environments/environment.prod';
 
 @Injectable({ providedIn: 'root' })
 export class EncuestasService {
-  private apiUrl = `${environment.apiUrl}/encuestas/creador`; 
+  private apiUrl = `${environment.apiUrl}/encuestas/creador`;
   private respuestasApiUrl = `${environment.apiUrl}/respuestas`;
+  // Añadimos una URL base para la parte pública
+  private publicApiUrl = `${environment.apiUrl}/encuestas/participacion`;
 
   constructor(private http: HttpClient) { }
 
@@ -45,9 +47,10 @@ export class EncuestasService {
   }
 
   getSurveyByToken(token: string): Observable<{ data: Encuesta }> {
-    return this.http.get<{ data: Encuesta }>(`/api/v1/encuestas/participacion/${token}`);
+    // Usamos la URL completa del backend
+    return this.http.get<{ data: Encuesta }>(`${this.publicApiUrl}/${token}`);
   }
-
+  
   updateEncuesta(token: string, encuestaId: number, payload: CreateEncuestaDto): Observable<{ data: Encuesta }> {
     return this.http.put<{ data: Encuesta }>(`${this.apiUrl}/${token}/encuesta/${encuestaId}/actualizar`, payload);
   }
