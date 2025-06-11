@@ -6,11 +6,12 @@ import { Encuesta } from '../interfaces/encuesta.interface';
 import { EncuestasPorTokenResponse, TokenParticipacionResponse } from '../interfaces/encuesta-response.interface';
 import { EnviarRespuestasPayload, EnviarRespuestasResponse } from '../interfaces/respuestas.interface';
 import { ResultadosPorTokenResultadosResponse } from '../interfaces/resultados.interface';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class EncuestasService {
-  private apiUrl = '/api/v1/encuestas/creador';
-  private respuestasApiUrl = '/api/v1/respuestas';
+  private apiUrl = `${environment.apiUrl}/encuestas/creador`; 
+  private respuestasApiUrl = `${environment.apiUrl}/respuestas`;
 
   constructor(private http: HttpClient) { }
 
