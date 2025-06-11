@@ -28,6 +28,9 @@ async function bootstrap() {
   // Creamos la app NestJS a partir de AppModule
   const app = await NestFactory.create(AppModule);
 
+  // ① HABILITAR CORS
+  app.enableCors();
+
   // ② Middleware: helmet ⇒ establece headers de seguridad comunes
   app.use(helmet());
 
