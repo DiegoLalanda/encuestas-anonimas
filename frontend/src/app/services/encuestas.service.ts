@@ -6,7 +6,7 @@ import { Encuesta } from '../interfaces/encuesta.interface';
 import { EncuestasPorTokenResponse, TokenParticipacionResponse } from '../interfaces/encuesta-response.interface';
 import { EnviarRespuestasPayload, EnviarRespuestasResponse } from '../interfaces/respuestas.interface';
 import { ResultadosPorTokenResultadosResponse } from '../interfaces/resultados.interface';
-import { environment } from '../../environments/environment';
+import { environment } from '../../environments/environment.prod';
 
 @Injectable({ providedIn: 'root' })
 export class EncuestasService {
