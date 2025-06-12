@@ -1,23 +1,33 @@
 // src/app/guards/auth.guard.ts
 
 import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
+import { CanActivateFn, Router, ActivatedRouteSnapshot } from '@angular/router';
 
-// Función para obtener la cookie
 const getTokenFromCookie = (name: string): string | null => {
   const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
   return match ? match[2] : null;
 };
 
-export const authGuard: CanActivateFn = (route, state) => {
+export const authGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state) => {
   const router = inject(Router);
-  const token = getTokenFromCookie('td'); // 'td' es el nombre de tu cookie de dashboard
 
-  if (token) {
-    return true; // Si hay token, permite el acceso a la ruta protegida
-  } else {
-    // Si no hay token, redirige a la página de bienvenida
-    router.navigate(['/']);
-    return false; // Bloquea el acceso a la ruta protegida
+  // 1. Intenta obtener el token de los parámetros de la URL
+  const tokenFromUrl = route.queryParamMap.get('token');
+
+  if (tokenFromUrl) {
+    // Si viene de la URL, es válido. Lo guardamos en la cookie para futuras navegaciones.
+    document.cookie = `td=${tokenFromUrl}; path=/; SameSite=Strict; Secure`;
+    return true; // Permite el acceso
   }
+
+  // 2. Si no viene de la URL, busca en la cookie (para navegaciones internas)
+  const tokenFromCookie = getTokenFromCookie('td');
+
+  if (tokenFromCookie) {
+    return true; // Permite el acceso
+  }
+
+  // 3. Si no hay token en ningún lado, redirige a la página principal
+  router.navigate(['/']);
+  return false;
 };
