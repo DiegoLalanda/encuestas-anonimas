@@ -96,26 +96,16 @@ export class DashboardComponent implements OnInit {
       this.activeOrder = initialFilter.order;
     }
 
-    // El AuthGuard ya ha verificado el acceso. Ahora solo obtenemos el token.
-    this.route.queryParamMap.subscribe((params) => {
-      // 1. Intenta obtener el token de la URL (si es la primera vez que se accede)
-      let token = params.get('token');
+    // El AuthGuard ya ha garantizado que la cookie 'td' existe.
+    // Ya sea porque venía en la URL o porque ya estaba en el navegador.
+    this.currentDashboardToken = this.getCookie('td');
 
-      // 2. Si hay un token en la URL, guárdalo en la cookie.
-      if (token) {
-        document.cookie = `td=${token}; path=/; SameSite=Strict; Secure`;
-      } else {
-        // 3. Si no hay token en la URL, búscalo en la cookie.
-        token = this.getCookie('td');
-      }
-
-      // A este punto, 'token' debe tener un valor gracias al AuthGuard.
-      this.currentDashboardToken = token;
-
-      // Lógica de paginación
+    // La lógica para leer `page` de la URL sigue siendo correcta.
+    this.route.queryParamMap.subscribe(params => {
       const pageFromUrl = params.get('page');
       const targetPage = pageFromUrl ? parseInt(pageFromUrl, 10) : 1;
       this.currentPage = (isNaN(targetPage) || targetPage < 1) ? 1 : targetPage;
+      
       const urlNeedsUpdate = !pageFromUrl || parseInt(pageFromUrl, 10) !== this.currentPage;
       if (urlNeedsUpdate) {
         this.updateUrlWithPage(false);
